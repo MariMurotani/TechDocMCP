@@ -1,0 +1,2 @@
+npm install
+npx tsx src/server.ts
