@@ -12,8 +12,8 @@
 ## 必要要件
 
 - Python 3.9以上
-- Git LFS（大容量DBファイルの管理用）
-
+- Node.js v22.6.0（MCP Inspector のインストール/利用に推奨）
+ 
 ## インストール
 
 ```bash
@@ -200,21 +200,3 @@ MCPサーバーが起動していれば、以下のような自然な質問で�
 ```
 tytool(query="generics", top_k=10)
 ```
-
-## 開発
-
-```bash
-# コードフォーマット
-black src/
-isort src/
-
-# 型チェック
-mypy src/
-
-# Linter
-flake8 src/
-```
-
-## ライセンス
-
-MIT
