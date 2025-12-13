@@ -4,7 +4,6 @@ from pathlib import Path
 
 import frontmatter
 import markdown
-from bs4 import BeautifulSoup
 
 # 高品質な本文抽出のためのライブラリ（常に使用）
 import trafilatura
@@ -138,10 +137,12 @@ def extract_from_md(path):
         md = frontmatter.load(f)
         body = md.content
     
-    # HTMLに変換
+    # HTMLに変換 -> 簡易テキスト抽出（BeautifulSoupなし）
     html = markdown.markdown(body)
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text(separator="\n", strip=True)
+    # マークアップを簡易的に除去（タグをスペースに変換）
+    text = re.sub(r"<[^>]+>", " ", html)
+    text = re.sub(r"\s+", " ", text)
+    text = text.strip()
     
     # ノイズ除去
     text = clean_text(text)

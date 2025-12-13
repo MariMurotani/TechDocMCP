@@ -5,6 +5,7 @@ import sys
 from sentence_transformers import SentenceTransformer
 
 from config import LOCAL_DOCS_BASE, MAX_EMBED_TEXT_LEN, DOMAIN_BLOCKLIST
+from policies.content_policy import ContentPolicy
 from utils.extract_text import extract_text
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "techdocs.db")
@@ -253,59 +254,7 @@ def is_allowed_domain(path: str) -> bool:
     return True
 
 
-def is_meaningful_content(text: str) -> bool:
-    """
-    テキストが意味のあるコンテンツかどうかを判定する
-    短すぎる、または索引のようなリストだけの内容は除外する
-    """
-    if not text or len(text.strip()) < 200:  # 最小文字数を200に引き上げ
-        return False
-    
-    lines = [line.strip() for line in text.strip().split("\n") if line.strip()]
-    if len(lines) < 10:  # 最小行数を10に引き上げ
-        return False
-    
-    # 各行の平均文字数を計算（索引ページは1行が短い傾向がある）
-    avg_line_length = sum(len(line) for line in lines) / len(lines)
-    if avg_line_length < 25:  # 平均文字数を25に引き上げ
-        return False
-    
-    # 単語数をチェック（英語ドキュメント対応）
-    word_count = len(text.split())
-    if word_count < 50:  # 最低50単語
-        return False
-    
-    return True
-
-
-def is_meaningful_content_for(path: str, text: str) -> bool:
-    """
-    ドメインやカテゴリに応じて閾値を調整した判定
-    - AWS公式CDKドキュメント（docs.aws.amazon.com）は若干緩める
-    """
-    # docs.aws.amazon.com のCDKページは軽量HTMLのことがあるため緩和
-    is_aws_cdk_page = (
-        "docs.aws.amazon.com" in path and "/cdk/" in path.lower()
-    )
-
-    if is_aws_cdk_page:
-        if not text or len(text.strip()) < 120:
-            return False
-        lines = [
-            line.strip() for line in text.strip().split("\n")
-            if line.strip()
-        ]
-        if len(lines) < 6:
-            return False
-        avg_line_length = sum(len(line) for line in lines) / len(lines)
-        if avg_line_length < 18:
-            return False
-        word_count = len(text.split())
-        if word_count < 35:
-            return False
-        return True
-
-    return is_meaningful_content(text)
+policy = ContentPolicy()
 
 
 def walk_files(dirs):
@@ -359,7 +308,7 @@ def main():
             continue
         
         # 意味のあるコンテンツかチェック（ドメイン別の調整込み）
-        if not is_meaningful_content_for(path, text):
+        if not policy.is_meaningful_for(path, text):
             print(f"  ⊘ Skipped (not meaningful content)")
             continue
 
