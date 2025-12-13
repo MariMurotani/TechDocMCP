@@ -6,6 +6,9 @@ import frontmatter
 import markdown
 from bs4 import BeautifulSoup
 
+# 高品質な本文抽出のためのライブラリ（常に使用）
+import trafilatura
+
 # 親ディレクトリをパスに追加してconfigをインポート
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import NOISE_PATTERNS, PER_LINE_NOISE_PATTERNS
@@ -112,72 +115,18 @@ def clean_text(text):
 def extract_from_html(path):
     """
     HTMLファイルから本文のみを抽出する。
-    ナビゲーション、ヘッダー、フッター、スクリプトなどの不要な要素を除外する。
+    Trafilaturaで主要コンテンツを抽出し、ノイズを除去する。
     """
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         html = f.read()
-    soup = BeautifulSoup(html, "html.parser")
+
+    # Trafilaturaで本文抽出
+    extracted = trafilatura.extract(html, include_comments=False, include_tables=False)
+    if extracted and extracted.strip():
+        return clean_text(extracted)
     
-    # まず主要コンテンツ領域を特定
-    main_content = (
-        soup.find(id=re.compile(r"^(main-content|content|awsdocs)", re.I))
-        or soup.find("main")
-        or soup.find("article")
-        or soup.find(class_=re.compile(r"(^content$|^main$|^body$|awsui|awsdocs|vt-doc)", re.I))
-    )
-    
-    # 主要コンテンツが見つかった場合、それを基準に処理
-    if main_content:
-        # 主要コンテンツ内の不要な要素を削除
-        for element in main_content([
-            "script", "style", "nav", "header", "footer", "aside", "iframe",
-            "noscript", "svg", "form", "button", "input", "select", "textarea", "link"
-        ]):
-            element.decompose()
-        
-        # クラス名で不要な要素を削除（主要コンテンツ内のみ）
-        for class_pattern in ["nav", "menu", "sidebar", "breadcrumb", "toc", "feedback", "social", "edit-link"]:
-            for element in main_content.find_all(class_=re.compile(class_pattern, re.I)):
-                element.decompose()
-        
-        # 主要コンテンツを使用
-        target = main_content
-    else:
-        # 見つからない場合は全体から削除
-        for element in soup([
-            "script", "style", "nav", "header", "footer", "aside", "iframe",
-            "noscript", "svg", "form", "button", "input", "select", "textarea", "link"
-        ]):
-            element.decompose()
-        
-        for class_name in ["navigation", "nav", "menu", "sidebar", "header", "footer", "breadcrumb", "toc", "table-of-contents", "feedback", "social", "share"]:
-            for element in soup.find_all(class_=re.compile(class_name, re.I)):
-                element.decompose()
-        
-        target = soup.find("body") or soup
-        target = soup.find("body") or soup
-    
-    # インラインstyle属性を削除
-    for tag in target.find_all(True):
-        if tag.get('style'):
-            del tag['style']
-        if tag.get('class'):
-            # フォント関連のクラスを除去
-            tag['class'] = [c for c in tag['class'] if 'font' not in c.lower()]
-    
-    # インラインタグの前後にスペースを挿入してから削除
-    # これにより "text<a>link</a>more" が "text link more" になる
-    for tag in target.find_all(['a', 'code', 'span', 'em', 'strong', 'b', 'i']):
-        # タグの前後にスペースを追加
-        if tag.string:
-            tag.string.replace_with(' ' + tag.string + ' ')
-    
-    # テキストを抽出
-    text = target.get_text(separator=" ", strip=True)
-    
-    # ノイズ除去
-    text = clean_text(text)
-    return text
+    # テキストが抽出できなかった場合は空文字を返す
+    return ""
 
 
 def extract_from_md(path):

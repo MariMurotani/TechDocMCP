@@ -6,6 +6,7 @@ markdown
 python-frontmatter
 fastmcp
 gdown
+trafilatura
 
 # Development tools
 flake8
