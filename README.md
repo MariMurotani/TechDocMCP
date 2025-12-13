@@ -24,7 +24,6 @@ cd TechDocMCP
 # 仮想環境を作成・有効化
 python -m venv .venv
 source .venv/bin/activate  # macOS/Linux
-# または .venv\Scripts\activate  # Windows
 
 # 依存パッケージをインストール
 pip install -r src/requirements.txt
@@ -78,11 +77,6 @@ macOSの場合:
 open ~/.cursor/mcp.json
 ```
 
-Windowsの場合:
-```bash
-notepad %USERPROFILE%\.cursor\mcp.json
-```
-
 ファイルが存在しない場合は、新規作成してください。
 
 #### 2. 設定を追加
@@ -128,6 +122,15 @@ npx @modelcontextprotocol/inspector \
 
 Cursorのチャットで、MCPツールを使って検索できます。
 
+## MCPサーバーの起動
+1. Ctrl + Shit + P (MAC)
+2. List MCP Servers
+<img width="622" height="95" alt="Image" src="https://github.com/user-attachments/assets/d02586a3-afed-4985-8e9e-7cb627801c0a" />
+3. Select MCP Servers
+<img width="309" height="191" alt="Image" src="https://github.com/user-attachments/assets/4702a281-527b-46fc-ab0e-5b9092d2670c" />
+4. Start
+<img width="365" height="153" alt="Image" src="https://github.com/user-attachments/assets/a210f9b4-df34-4114-ae63-1cc660336f8d" />
+
 ### 利用可能なツール
 
 FastMCPを使用した5つの専用検索ツールがあります：
@@ -146,119 +149,45 @@ Cursorが質問内容から自動的に適切なツールを選択します。
 
 MCPサーバーが起動していれば、以下のような自然な質問で検索できます：
 
-**TypeScriptの質問（`tytool`が呼ばれる）:**
-```
-TypeScriptのGenericsについて教えて
-```
 
-```
-TypeScriptでinterfaceとtypeの違いは？
-```
+<img width="567" height="384" alt="Image" src="https://github.com/user-attachments/assets/c583a16d-cc55-4ea7-a2c2-930080139e20" />
+<img width="563" height="684" alt="Image" src="https://github.com/user-attachments/assets/10bafeac-5fce-400d-bdc7-17a782bbdde5" />
 
-**Pythonの質問（`pytool`が呼ばれる）:**
-```
-Pythonでデコレータを使う方法は？
-```
 
-```
-Pythonのasync/awaitについて教えて
-```
+### 参照ドキュメント（ローカル ~/docs ）
 
-**AWS CDKの質問（`cdktool`が呼ばれる）:**
-```
-CDKでLambda関数を作成するには？
-```
+各ツールが参照する主なドメインを一覧化します
 
-```
-CDKのConstructについて説明して
-```
+- pytool
+  - docs.python.org: Python公式ドキュメント
+  - mypy.readthedocs.io: Mypy公式ドキュメント
+  - black.readthedocs.io: Black公式ドキュメント
+  - peps.python.org: PEP一覧/仕様
+  - docs.pytest.org: Pytest公式ドキュメント
+  - www.thedigitalcatbooks.com: Clean Architecture in Python（書籍サイト）
 
-**Vue.jsの質問（`vuetool`が呼ばれる）:**
-```
-Vueのcomposablesの使い方を知りたい
-```
+- tytool
+  - www.typescriptlang.org: TypeScript公式ドキュメント
+  - basarat.gitbook.io: TypeScript Deep Dive
+  - eslint.org: ESLintドキュメント
+  - jestjs.io: Jestドキュメント
+  - google.github.io: Various TS/JS関連ドキュメント（Playwright等）
+  - dev.to: 記事（クリーンアーキテクチャ等）
+  - typeorm.io: TypeORMドキュメント
+  - playwright.dev: Playwrightドキュメント
 
-```
-VueのComposition APIについて
-```
+- cdktool
+  - docs.aws.amazon.com: AWS CDK API/ガイド
 
-**AWS Designの質問（`awstool`が呼ばれる）:**
-```
-AWSのWell-Architected Frameworkについて教えて
-```
+- vuetool
+  - vuejs.org: Vue公式ドキュメント
+  - ja.vuejs.org: Vue日本語ドキュメント
 
-```
-AWSのアーキテクチャパターンを知りたい
-```
+- awstool
+  - aws.amazon.com: アーキテクチャベストプラクティス/ブログ
+  - docs.aws.amazon.com: Well-Architected等の設計ガイド
+  - refactoring.guru: デザインパターン（設計参考）
 
-Cursorが自動的に適切なツールを選択して呼び出します。
-
-### 全カテゴリから検索
-
-**注意**: 現在の実装では各ツールがカテゴリ専用です。複数カテゴリを横断検索する場合は、個別に質問してください。
-
-### 明示的なツール呼び出し
-
-ツールを直接指定することもできます：
-
-**TypeScript検索:**
-```
-tytoolでGenericsについて検索して
-```
-
-**Python検索:**
-```
-pytoolでデコレータについて教えて
-```
-
-**CDK検索:**
-```
-cdktoolでLambda関数の作り方を検索
-```
-
-**Vue検索:**
-```
-vuetoolでComposablesについて調べて
-```
-
-**AWS Design検索:**
-```
-awstoolでWell-Architected Frameworkについて検索
-```
-
-### 検索結果数の指定
-
-```
-TypeScriptのGenericsについて、詳しく知りたいので10件検索して
-```
-
-各ツールは `top_k` パラメータで結果数を調整できます（1-10件、デフォルト: 5件）。
-
-### ChatGPTからの呼び出し例
-
-ChatGPT（GPT-4やGPT-4o）でMCPサーバーを設定している場合：
-
-**例1: TypeScriptの型について**
-```
-TypeScriptのUtility Typesについて、tytoolで検索して詳しく教えて
-```
-
-**例2: Pythonの非同期処理**
-```
-pytoolを使って、Pythonのasyncioについて調べてください
-```
-
-**例3: CDKのベストプラクティス**
-```
-cdktoolでAWS CDKのベストプラクティスを検索
-```
-
-**例4: Vueのリアクティビティ**
-```
-vuetoolを使ってVue 3のreactivityシステムについて説明して
-```
-
-ChatGPTが自動的にMCPツールを呼び出し、ローカルドキュメントの内容に基づいて回答します。
 
 ### ツールパラメータ
 
