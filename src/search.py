@@ -21,7 +21,7 @@ class TechDocsSearch:
         conn.enable_load_extension(False)
 
         sql = """
-            SELECT documents.path, documents.category,
+            SELECT documents.url, documents.category, documents.path,
                    vec_distance_L2(doc_embeddings.embedding, ?) AS score
             FROM doc_embeddings
             JOIN documents ON doc_embeddings.rowid = documents.id
@@ -50,5 +50,18 @@ if __name__ == "__main__":
         query="lambda function and decorators", category="python", top_k=5
     )
 
-    for path, cat, score in result:
-        print(f"[{cat}] {score:.4f} {path}")
+    import re
+
+    def _path_to_url(path: str) -> str:
+        m = re.search(r"/docs/[^/]+/([^/]+)/(.*)$", path)
+        if not m:
+            return path
+        domain, rest = m.group(1), m.group(2)
+        if rest.endswith(".html"):
+            rest = rest[:-5]
+        elif rest.endswith(".md"):
+            rest = rest[:-3]
+        return f"https://{domain}/{rest}"
+
+    for url, cat, path, score in result:
+        print(f"[{cat}] {score:.4f} {url or _path_to_url(path)}")
