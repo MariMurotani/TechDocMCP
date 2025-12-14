@@ -68,7 +68,7 @@ python src/build_index.py
 
 ## MCPサーバーの起動
 
-### Cursorでの設定
+### CursorやVSCodeでの設定
 
 #### 1. mcp.jsonファイルを開く
 
@@ -96,7 +96,7 @@ open ~/.cursor/mcp.json
 
 既に他のMCPサーバーが設定されている場合は、`"techdoc"`の部分だけを追加してください。
 
-#### 3. Cursorを再起動
+#### 3. CursorやVSCodeを再起動
 
 設定を保存してCursorを完全に再起動すると、技術ドキュメント検索ツールが利用可能になります。
 
@@ -141,9 +141,9 @@ FastMCPを使用した5つの専用検索ツールがあります：
 - **`vuetool`** - Vue.js専用ドキュメント検索
 - **`awstool`** - AWS Design専用ドキュメント検索
 
-Cursorが質問内容から自動的に適切なツールを選択します。
+Cursor/Copilotが質問内容から自動的に適切なツールを選択します。
 
-<img src="https://private-user-images.githubusercontent.com/4035504/526131809-930bbb3a-0974-41cb-b93d-d1bb81cc645b.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjU1OTAzOTcsIm5iZiI6MTc2NTU5MDA5NywicGF0aCI6Ii80MDM1NTA0LzUyNjEzMTgwOS05MzBiYmIzYS0wOTc0LTQxY2ItYjkzZC1kMWJiODFjYzY0NWIucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MTIxMyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTEyMTNUMDE0MTM3WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9ZjUzMDQ4N2IyZWRjZDhhYjI5NTNhNmFkZTI4OGJiNTk0ZTQ1OTgzN2U3ZjI3YWM2YmY3ZDM1NGQwODhkNGZmMCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.Tb1kwBSRbRQFVPHises5Gx188HPt_R0IWI2kL3SwjNg" />
+<img width="567" height="384" alt="Image" src="https://github.com/user-attachments/assets/c583a16d-cc55-4ea7-a2c2-930080139e20" />
 
 ### 質問例
 
@@ -161,7 +161,7 @@ MCPサーバーが起動していれば、以下のような自然な質問で�
 <img width="442" height="324" alt="Image" src="https://github.com/user-attachments/assets/a3ca5532-ef40-4565-94b7-704f3b5484ec" />
 <img width="443" height="664" alt="Image" src="https://github.com/user-attachments/assets/aef76c0c-2894-45bc-a227-1da1d3c6766e" />
 
-### 参照ドキュメント（ローカル ~/docs ）
+### 参照ドキュメント
 
 各ツールが参照する主なドメインを一覧化します
 
@@ -172,16 +172,17 @@ MCPサーバーが起動していれば、以下のような自然な質問で�
   - peps.python.org: PEP一覧/仕様
   - docs.pytest.org: Pytest公式ドキュメント
   - www.thedigitalcatbooks.com: Clean Architecture in Python（書籍サイト）
+  - その他ブログなど
 
 - tytool
   - www.typescriptlang.org: TypeScript公式ドキュメント
   - basarat.gitbook.io: TypeScript Deep Dive
   - eslint.org: ESLintドキュメント
   - jestjs.io: Jestドキュメント
-  - google.github.io: Various TS/JS関連ドキュメント（Playwright等）
   - dev.to: 記事（クリーンアーキテクチャ等）
   - typeorm.io: TypeORMドキュメント
   - playwright.dev: Playwrightドキュメント
+　- その他ブログなど
 
 - cdktool
   - docs.aws.amazon.com: AWS CDK API/ガイド
