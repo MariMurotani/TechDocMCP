@@ -1,12 +1,17 @@
 import os
-import sqlite3
 import logging
 import sys
+from pathlib import Path
 
-import sqlite_vec
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from sentence_transformers import SentenceTransformer
+
+# 親ディレクトリをパスに追加してインポート
+sys.path.insert(0, str(Path(__file__).parent))
+
+from infrastructure.persistence import SQLiteDocumentRepository
+from infrastructure.models import EmbeddingModel
+from application.use_cases import SearchDocumentsUseCase, SearchDocumentsRequest
 
 # Configure logging
 logging.basicConfig(
@@ -21,39 +26,30 @@ logger = logging.getLogger("techdoc")
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "techdocs.db")
 
+# 依存性を初期化
+_repository = SQLiteDocumentRepository(DB_PATH)
+_embedding_model = EmbeddingModel()
+_search_use_case = SearchDocumentsUseCase(_repository, _embedding_model)
+
 
 async def search_docs(query: str, category: str = None, top_k: int = 5):
     """Search technical documentation using vector similarity"""
     logger.info(f"Search request - Query: '{query}', Category: {category}, Top K: {top_k}")
     
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-    q_vec = model.encode(query).astype("float32")
+    # ユースケースを実行
+    request = SearchDocumentsRequest(query=query, category=category, top_k=top_k)
+    response = _search_use_case.execute(request)
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.enable_load_extension(True)
-    sqlite_vec.load(conn)
-    conn.enable_load_extension(False)
-
-    sql = """
-        SELECT documents.path, documents.category, documents.text,
-               vec_distance_L2(doc_embeddings.embedding, ?) AS score
-        FROM doc_embeddings
-        JOIN documents ON doc_embeddings.rowid = documents.id
-    """
-
-    params = [q_vec.tobytes()]
-
-    if category:
-        sql += " WHERE documents.category = ?"
-        params.append(category)
-
-    sql += " ORDER BY score ASC LIMIT ?"
-    params.append(top_k)
-
-    rows = conn.execute(sql, params).fetchall()
-    conn.close()
-
-    results = [{"path": r[0], "category": r[1], "content": r[2], "score": float(r[3])} for r in rows]
+    # レスポンスをフォーマット
+    results = [
+        {
+            "path": result.path,
+            "category": result.category,
+            "content": result.text,
+            "score": result.score
+        }
+        for result in response.results
+    ]
     logger.info(f"Found {len(results)} results")
     
     return results
