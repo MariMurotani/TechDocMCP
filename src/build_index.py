@@ -153,6 +153,15 @@ def create_db():
     
     conn.enable_load_extension(False)
 
+    # Optimize DB for larger size and write throughput
+    try:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        conn.execute("PRAGMA page_size=32768;")
+        conn.execute("PRAGMA mmap_size=134217728;")  # 128MB
+    except sqlite3.OperationalError:
+        pass
+
     # documents テーブル（カテゴリとURLを追加）
     conn.execute(
         """
@@ -177,13 +186,13 @@ def create_db():
         pass
 
     # ベクトル格納テーブル (vec0を使用)
-    conn.execute(
+        conn.execute(
+            """
+            CREATE VIRTUAL TABLE IF NOT EXISTS doc_embeddings USING vec0(
+                embedding FLOAT[384]
+            );
         """
-        CREATE VIRTUAL TABLE IF NOT EXISTS doc_embeddings USING vec0(
-            embedding FLOAT[384]
-        );
-    """
-    )
+        )
 
     conn.commit()
     return conn
@@ -312,7 +321,7 @@ def main():
 
     target_dirs = select_target_dirs(args.category)
 
-    print("Loading embedding model...")
+    print("Loading embedding model (384-dim)...")
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
     conn = create_db()

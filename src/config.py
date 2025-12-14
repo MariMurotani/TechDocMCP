@@ -1,10 +1,3 @@
-NEO4J_URI = "neo4j://localhost:7687"
-NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "yourpassword"
-
-# 料理研究とは別のデータベース名
-NEO4J_DATABASE = "techdocs"
-
 # テキスト抽出時に除去するノイズパターン
 NOISE_PATTERNS = [
     r'Was this page helpful\?',
@@ -46,8 +39,13 @@ LOCAL_DOCS_BASE = "../docs/"
 
 # 埋め込み生成時に使用する本文の最大文字数
 # 長すぎる場合は処理が重くなるため上限を設ける
-# 既定: 12000 文字（より長いドキュメント対応）
-MAX_EMBED_TEXT_LEN = 12000
+# 既定: 120000 文字（より長いドキュメント対応）。環境変数 TECHDOC_MAX_EMBED_TEXT_LEN で上書き可能。
+import os
+try:
+    MAX_EMBED_TEXT_LEN = int(os.getenv("TECHDOC_MAX_EMBED_TEXT_LEN", "120000"))
+except ValueError:
+    # 環境変数に不正な値が入っていた場合は安全な既定値にフォールバック
+    MAX_EMBED_TEXT_LEN = 120000
 
 # ブロックするドメイン（広告、トラッキング、分析系など）
 # 以下に一致するドメインは処理から除外
