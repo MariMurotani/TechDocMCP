@@ -197,7 +197,17 @@ MCPサーバーが起動していれば、以下のような自然な質問で�
 - awstool
   - aws.amazon.com: アーキテクチャベストプラクティス/ブログ
   - docs.aws.amazon.com: Well-Architected等の設計ガイド
+  - ja.vuejs.org: 参考記事（AWS設計関連の和訳ドキュメントを追加）
   - refactoring.guru: デザインパターン（設計参考）
+  - docs.aws.amazon.com/: デベロッパーズガイド 
+    - aurora, aurora-dsql
+    - serverless
+    - amazondynamodb
+    - step-functions
+    - appsync
+    - lambda
+    - wellarchitected
+    - prescriptive-guidance
 
 
 ### ツールパラメータ
