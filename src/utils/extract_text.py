@@ -150,8 +150,20 @@ def extract_from_md(path):
 
 
 def extract_text(path):
-    if path.endswith(".html"):
+    """Extract text from HTML/Markdown and html-like files without extensions."""
+    lower = path.lower()
+    if lower.endswith(".html") or lower.endswith(".htm"):
         return extract_from_html(path)
-    if path.endswith(".md"):
+    if lower.endswith(".md"):
         return extract_from_md(path)
+
+    # Handle extension-less HTML files by sniffing their content.
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            snippet = f.read(2048)
+        if "<html" in snippet.lower() or "<!doctype" in snippet.lower():
+            return extract_from_html(path)
+    except OSError:
+        pass
+
     return ""

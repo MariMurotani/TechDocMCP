@@ -258,17 +258,26 @@ policy = ContentPolicy()
 
 
 def walk_files(dirs):
+    """Yield candidate documentation files (HTML/Markdown/extension-less HTML)."""
     for base in dirs:
         for root, _, files in os.walk(base):
             for f in files:
-                if f.endswith((".html", ".md")):
-                    full_path = os.path.join(root, f)
-                    if should_skip_file(f, full_path):
-                        continue
-                    if not is_allowed_domain(full_path):
-                        print("  ⊘ Skipped (domain filtered)")
-                        continue
-                    yield full_path
+                full_path = os.path.join(root, f)
+
+                # Accept html/htm/md, and extension-less files for html sniffing.
+                allowed_ext = (".html", ".htm", ".md")
+                has_allowed_ext = f.lower().endswith(allowed_ext)
+                looks_extensionless = "." not in f  # e.g., saved HTML without extension
+
+                if not (has_allowed_ext or looks_extensionless):
+                    continue
+
+                if should_skip_file(f, full_path):
+                    continue
+                if not is_allowed_domain(full_path):
+                    print("  ⊘ Skipped (domain filtered)")
+                    continue
+                yield full_path
 
 
 def main():
