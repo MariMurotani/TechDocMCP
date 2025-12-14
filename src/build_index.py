@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+import argparse
 
 from sentence_transformers import SentenceTransformer
 
@@ -280,7 +281,37 @@ def walk_files(dirs):
                 yield full_path
 
 
+def select_target_dirs(selected_category: str | None):
+    if not selected_category:
+        return TARGET_DIRS
+
+    selected = selected_category.lower()
+    if selected not in KNOWN_CATEGORIES:
+        raise ValueError(f"Unknown category: {selected_category} (choices: {', '.join(KNOWN_CATEGORIES)})")
+
+    matches = []
+    for path in TARGET_DIRS:
+        lower = path.lower().rstrip("/")
+        tail = lower.split("/")[-1]
+        if selected in lower.split("/") or tail == selected:
+            matches.append(path)
+
+    if not matches:
+        raise ValueError(f"Category '{selected_category}' not mapped in TARGET_DIRS")
+    return matches
+
+
 def main():
+    parser = argparse.ArgumentParser(description="Build TechDoc index")
+    parser.add_argument(
+        "--category",
+        choices=KNOWN_CATEGORIES,
+        help="Limit indexing to a single category (folder in TARGET_DIRS)",
+    )
+    args = parser.parse_args()
+
+    target_dirs = select_target_dirs(args.category)
+
     print("Loading embedding model...")
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
@@ -309,7 +340,7 @@ def main():
     count = 0
     updated = 0
 
-    for path in walk_files(TARGET_DIRS):
+    for path in walk_files(target_dirs):
         print(f"Processing: {path}")
 
         text = extract_text(path)

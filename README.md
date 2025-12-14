@@ -60,6 +60,9 @@ python src/download_model.py
 
 # インデックスをビルド
 python src/build_index.py
+
+# 特定カテゴリのみ（typescript/python/cdk/vue/aws_design）
+python src/build_index.py --category vue
 ```
 
 これにより `src/techdocs.db` が生成されます。
