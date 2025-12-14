@@ -42,7 +42,7 @@ NOISE_PATTERNS = [
 ]
 
 # ローカルパスのベースディレクトリ
-LOCAL_DOCS_BASE = "/Users/marimurotani/docs/"
+LOCAL_DOCS_BASE = "../docs/"
 
 # 埋め込み生成時に使用する本文の最大文字数
 # 長すぎる場合は処理が重くなるため上限を設ける
