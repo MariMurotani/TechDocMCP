@@ -149,10 +149,17 @@ Cursorが質問内容から自動的に適切なツールを選択します。
 
 MCPサーバーが起動していれば、以下のような自然な質問で検索できます：
 
+リファクタリングアドバイスを受けてみましょう
 
 <img width="567" height="384" alt="Image" src="https://github.com/user-attachments/assets/c583a16d-cc55-4ea7-a2c2-930080139e20" />
 <img width="563" height="684" alt="Image" src="https://github.com/user-attachments/assets/10bafeac-5fce-400d-bdc7-17a782bbdde5" />
 
+----
+リファクタリングアドバイスを受けてから
+コード修正案を出してもらいます
+
+<img width="442" height="324" alt="Image" src="https://github.com/user-attachments/assets/a3ca5532-ef40-4565-94b7-704f3b5484ec" />
+<img width="443" height="664" alt="Image" src="https://github.com/user-attachments/assets/aef76c0c-2894-45bc-a227-1da1d3c6766e" />
 
 ### 参照ドキュメント（ローカル ~/docs ）
 

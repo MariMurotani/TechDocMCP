@@ -13,6 +13,31 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import NOISE_PATTERNS, PER_LINE_NOISE_PATTERNS
 
 
+class ExtractTextError(Exception):
+    """Base class for extract_text-related errors."""
+
+
+class FileReadError(ExtractTextError):
+    def __init__(self, path: str, original: Exception):
+        super().__init__(f"Failed to read file: {path}")
+        self.path = path
+        self.original = original
+
+
+class HtmlParseError(ExtractTextError):
+    def __init__(self, path: str, original: Exception):
+        super().__init__(f"Failed to parse HTML: {path}")
+        self.path = path
+        self.original = original
+
+
+class MarkdownParseError(ExtractTextError):
+    def __init__(self, path: str, original: Exception):
+        super().__init__(f"Failed to parse Markdown: {path}")
+        self.path = path
+        self.original = original
+
+
 def clean_text(text):
     """
     抽出したテキストから不要なノイズを除去する。
@@ -111,20 +136,44 @@ def clean_text(text):
     return text.strip()
 
 
+def _read_file(path: str) -> str:
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
+    except OSError as exc:
+        raise FileReadError(path, exc) from exc
+
+
+def _is_html_like(path: str) -> bool:
+    lower = path.lower()
+    return lower.endswith((".html", ".htm"))
+
+
+def _sniff_html(path: str) -> bool:
+    try:
+        snippet = _read_file(path)[:2048]
+    except FileReadError:
+        return False
+    sniff = snippet.lower()
+    return "<html" in sniff or "<!doctype" in sniff
+
+
 def extract_from_html(path):
     """
     HTMLファイルから本文のみを抽出する。
     Trafilaturaで主要コンテンツを抽出し、ノイズを除去する。
     """
-    with open(path, "r", encoding="utf-8", errors="ignore") as f:
-        html = f.read()
+    try:
+        html = _read_file(path)
+        extracted = trafilatura.extract(html, include_comments=False, include_tables=False)
+    except FileReadError:
+        raise
+    except Exception as exc:  # Trafilatura parsing errors
+        raise HtmlParseError(path, exc) from exc
 
-    # Trafilaturaで本文抽出
-    extracted = trafilatura.extract(html, include_comments=False, include_tables=False)
     if extracted and extracted.strip():
         return clean_text(extracted)
-    
-    # テキストが抽出できなかった場合は空文字を返す
+
     return ""
 
 
@@ -133,18 +182,18 @@ def extract_from_md(path):
     Markdownファイルから本文のみを抽出する。
     Front matterを除外し、HTMLに変換後テキストを抽出。
     """
-    with open(path, "r", encoding="utf-8", errors="ignore") as f:
-        md = frontmatter.load(f)
+    try:
+        raw = _read_file(path)
+        md = frontmatter.loads(raw)
         body = md.content
-    
-    # HTMLに変換 -> 簡易テキスト抽出（BeautifulSoupなし）
-    html = markdown.markdown(body)
-    # マークアップを簡易的に除去（タグをスペースに変換）
+        html = markdown.markdown(body)
+    except FileReadError:
+        raise
+    except Exception as exc:
+        raise MarkdownParseError(path, exc) from exc
+
     text = re.sub(r"<[^>]+>", " ", html)
-    text = re.sub(r"\s+", " ", text)
-    text = text.strip()
-    
-    # ノイズ除去
+    text = re.sub(r"\s+", " ", text).strip()
     text = clean_text(text)
     return text
 
@@ -152,18 +201,12 @@ def extract_from_md(path):
 def extract_text(path):
     """Extract text from HTML/Markdown and html-like files without extensions."""
     lower = path.lower()
-    if lower.endswith(".html") or lower.endswith(".htm"):
-        return extract_from_html(path)
-    if lower.endswith(".md"):
-        return extract_from_md(path)
-
-    # Handle extension-less HTML files by sniffing their content.
     try:
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
-            snippet = f.read(2048)
-        if "<html" in snippet.lower() or "<!doctype" in snippet.lower():
+        if lower.endswith(".md"):
+            return extract_from_md(path)
+        if _is_html_like(path) or ("." not in path and _sniff_html(path)):
             return extract_from_html(path)
-    except OSError:
-        pass
-
-    return ""
+        return ""
+    except ExtractTextError:
+        # Fail-safe: skip problematic files to keep indexing running
+        return ""
