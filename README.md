@@ -53,6 +53,17 @@ python src/download_model.py
 ### オプション2: 自分でDBをビルド
 
 ドキュメントをインデックス化してデータベースを構築します。
+wgetなどでローカルディレクトリに集約しましょう
+```shell
+wget \
+  --mirror \
+  --convert-links \
+  --adjust-extension \
+  --page-requisites \
+  --no-parent \
+  --domains graphql.org \
+  https://graphql.org/learn/introduction/
+```
 
 ```bash
 # src/build_index.py の TARGET_DIRS を編集してドキュメントパスを指定
